@@ -1,10 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legg til oppgave - Oppgavebehandlingssystem</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-tasks me-2"></i>Oppgavebehandlingssystem
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/">
+                <i class="fas fa-arrow-left me-1"></i>Tilbake til oversikt
+            </a>
+        </div>
+    </div>
+</nav>
 
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="form-container">
+                <div class="text-center mb-4">
+                    <h2 class="text-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Legg til ny oppgave
+                    </h2>
+                    <p class="text-muted">Fyll inn informasjonen for den nye oppgaven</p>
+                </div>
+
+                <form action="/add-task" method="post" id="taskForm">
+                    <!-- Task Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Oppgavetype *</label>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="taskType" id="workTask" value="work" checked>
+                                <label class="btn btn-outline-primary w-100 py-3" for="workTask">
+                                    <i class="fas fa-briefcase fa-2x d-block mb-2"></i>
+                                    <strong>Jobboppgave</strong>
+                                    <small class="d-block text-muted">Arbeidsrelatert oppgave</small>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="taskType" id="personalTask" value="personal">
+                                <label class="btn btn-outline-success w-100 py-3" for="personalTask">
+                                    <i class="fas fa-user fa-2x d-block mb-2"></i>
+                                    <strong>Personlig oppgave</strong>
+                                    <small class="d-block text-muted">Privat oppgave</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="title" class="form-label fw-bold">Tittel *</label>
+                            <input type="text" class="form-control form-control-lg" id="title" name="title"
+                                   placeholder="Skriv en beskrivende tittel..." required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">Beskrivelse</label>
+                        <textarea class="form-control" id="description" name="description" rows="4"
+                                  placeholder="Legg til detaljer om oppgaven..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="dueDate" class="form-label fw-bold">Forfallsdato *</label>
+                            <input type="date" class="form-control" id="dueDate" name="dueDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label fw-bold">Prioritet *</label>
+                            <select class="form-select" id="priority" name="priority" required>
+                                <option value="">Velg prioritet</option>
+                                <option value="LOW">🟢 Lav prioritet</option>
+                                <option value="MEDIUM" selected>🟡 Medium prioritet</option>
+                                <option value="HIGH">🔴 Høy prioritet</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Work-specific fields -->
+                    <div id="workFields" class="work-specific">
+                        <hr class="my-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-briefcase me-2"></i>Jobbinformasjon
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="project" class="form-label">Prosjekt</label>
+                                <input type="text" class="form-control" id="project" name="project"
+                                       placeholder="Prosjektnavn">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="client" class="form-label">Kunde</label>
+                                <input type="text" class="form-control" id="client" name="client"
+                                       placeholder="Kundenavn">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="department" class="form-label">Avdeling</label>
+                                <select class="form-select" id="department" name="department">
+                                    <option value="">Velg avdeling</option>
+                                    <option value="IT">IT</option>
+                                    <option value="Salg">Salg</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="HR">HR</option>
+                                    <option value="Økonomi">Økonomi</option>
+                                    <option value="Drift">Drift</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal-specific fields -->
+                    <div id="personalFields" class="personal-specific" style="display: none;">
+                        <hr class="my-4">
+                        <h5 class="text-success mb-3">
+                            <i class="fas fa-user me-2"></i>Personlig informasjon
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">Kategori</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="Generell" selected>Generell</option>
+                                    <option value="Hjem">🏠 Hjem</option>
+                                    <option value="Helse">🏥 Helse</option>
+                                    <option value="Utdanning">🎓 Utdanning</option>
+                                    <option value="Hobby">🎨 Hobby</option>
+                                    <option value="Familie">👨‍👩‍👧‍👦 Familie</option>
+                                    <option value="Shopping">🛒 Shopping</option>
+                                    <option value="Reise">✈️ Reise</option>
+                                    <option value="Sport">⚽ Sport</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="location" class="form-label">Sted</label>
+                                <input type="text" class="form-control" id="location" name="location"
+                                       placeholder="Hvor skal oppgaven utføres?">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-between">
+                        <a href="/" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Avbryt
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Lagre oppgave
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
 </body>
 </html>

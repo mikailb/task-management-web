@@ -1,10 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rediger oppgave - Oppgavebehandlingssystem</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-tasks me-2"></i>Oppgavebehandlingssystem
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/">
+                <i class="fas fa-arrow-left me-1"></i>Tilbake til oversikt
+            </a>
+        </div>
+    </div>
+</nav>
 
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="form-container">
+                <div class="text-center mb-4">
+                    <h2 class="text-primary">
+                        <i class="fas fa-edit me-2"></i>Rediger oppgave
+                    </h2>
+                    <p class="text-muted">Oppdater informasjonen for oppgaven</p>
+                </div>
+
+                <form th:action="@{/edit-task/{id}(id=${task.id})}" method="post" id="editTaskForm">
+                    <!-- Task Info Display -->
+                    <div class="alert alert-info mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Oppgave-ID:</strong> <span th:text="${task.id}">ID</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Type:</strong>
+                                <span th:if="${task.class.simpleName == 'WorkTask'}" class="badge bg-primary">
+                                        <i class="fas fa-briefcase me-1"></i>Jobboppgave
+                                    </span>
+                                <span th:if="${task.class.simpleName == 'PersonalTask'}" class="badge bg-success">
+                                        <i class="fas fa-user me-1"></i>Personlig oppgave
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-bold">Tittel *</label>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title"
+                               th:value="${task.title}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">Beskrivelse</label>
+                        <textarea class="form-control" id="description" name="description" rows="4"
+                                  th:text="${task.description}"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="dueDate" class="form-label fw-bold">Forfallsdato *</label>
+                            <input type="date" class="form-control" id="dueDate" name="dueDate"
+                                   th:value="${task.dueDate}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label fw-bold">Prioritet *</label>
+                            <select class="form-select" id="priority" name="priority" required>
+                                <option th:each="priority : ${priorities}"
+                                        th:value="${priority}"
+                                        th:text="${priority.displayName}"
+                                        th:selected="${priority == task.priority}">Prioritet</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Display specific fields based on task type -->
+                    <div th:if="${task.class.simpleName == 'WorkTask'}">
+                        <hr class="my-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-briefcase me-2"></i>Jobbinformasjon
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Prosjekt</label>
+                                <input type="text" class="form-control" th:value="${task.project}" readonly>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Kunde</label>
+                                <input type="text" class="form-control" th:value="${task.client}" readonly>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Avdeling</label>
+                                <input type="text" class="form-control" th:value="${task.department}" readonly>
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Jobbspesifikke felt kan ikke endres. Opprett ny oppgave hvis nødvendig.
+                        </small>
+                    </div>
+
+                    <div th:if="${task.class.simpleName == 'PersonalTask'}">
+                        <hr class="my-4">
+                        <h5 class="text-success mb-3">
+                            <i class="fas fa-user me-2"></i>Personlig informasjon
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Kategori</label>
+                                <input type="text" class="form-control" th:value="${task.category}" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sted</label>
+                                <input type="text" class="form-control" th:value="${task.location}" readonly>
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Personlige felt kan ikke endres. Opprett ny oppgave hvis nødvendig.
+                        </small>
+                    </div>
+
+                    <!-- Task Status -->
+                    <hr class="my-4">
+                    <div class="mb-3">
+                        <h6 class="fw-bold">Oppgavestatus</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Status:</strong>
+                                <span th:if="${task.completed}" class="badge bg-success ms-2">
+                                        <i class="fas fa-check-circle me-1"></i>Fullført
+                                    </span>
+                                <span th:unless="${task.completed}" class="badge bg-warning text-dark ms-2">
+                                        <i class="fas fa-clock me-1"></i>Aktiv
+                                    </span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Opprettet:</strong>
+                                <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Dato</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-between">
+                        <a href="/" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Avbryt
+                        </a>
+                        <div>
+                            <form th:if="${!task.completed}"
+                                  th:action="@{/complete-task/{id}(id=${task.id})}"
+                                  method="post" class="d-inline me-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-check me-2"></i>Marker som fullført
+                                </button>
+                            </form>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Lagre endringer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
 </body>
 </html>

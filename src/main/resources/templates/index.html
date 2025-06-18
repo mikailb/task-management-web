@@ -1,10 +1,230 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oppgavebehandlingssystem</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-tasks me-2"></i>Oppgavebehandlingssystem
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/upcoming">
+                <i class="fas fa-clock me-1"></i>Kommende
+            </a>
+            <a class="nav-link" href="/add-task">
+                <i class="fas fa-plus me-1"></i>Ny oppgave
+            </a>
+        </div>
+    </div>
+</nav>
 
+<div class="container mt-4">
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stats-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-list fa-2x mb-2"></i>
+                    <h4 th:text="${stats.total}">0</h4>
+                    <p class="mb-0">Totalt oppgaver</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h4 th:text="${stats.completed}">0</h4>
+                    <p class="mb-0">Fullført</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-hourglass-half fa-2x mb-2"></i>
+                    <h4 th:text="${stats.pending}">0</h4>
+                    <p class="mb-0">Gjenstående</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-danger text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h4 th:text="${stats.overdue}">0</h4>
+                    <p class="mb-0">Forfalt</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Tasks Preview -->
+    <div th:if="${!upcomingTasks.empty}" class="row mb-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Kommende oppgaver (neste 7 dager)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div th:each="task, iterStat : ${upcomingTasks}" class="col-md-6 col-lg-4 mb-2" th:if="${iterStat.index < 6}">
+                            <div class="d-flex align-items-center">
+                                    <span class="badge me-2"
+                                          th:classappend="${task.priority.name() == 'HIGH'} ? 'bg-danger' : (${task.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-success')">
+                                        <span th:text="${task.priority.displayName}"></span>
+                                    </span>
+                                <small class="text-truncate" th:text="${task.title}">Oppgave</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end mt-2">
+                        <a href="/upcoming" class="btn btn-sm btn-outline-warning">Se alle kommende</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="row mb-3">
+        <div class="col">
+            <div class="btn-group flex-wrap" role="group">
+                <a href="/" class="btn btn-outline-primary active">
+                    <i class="fas fa-list me-1"></i>Alle oppgaver
+                </a>
+                <a href="/priority/HIGH" class="btn btn-outline-danger">
+                    <i class="fas fa-exclamation me-1"></i>Høy prioritet
+                </a>
+                <a href="/priority/MEDIUM" class="btn btn-outline-warning">
+                    <i class="fas fa-minus me-1"></i>Medium prioritet
+                </a>
+                <a href="/priority/LOW" class="btn btn-outline-success">
+                    <i class="fas fa-arrow-down me-1"></i>Lav prioritet
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks List -->
+    <div class="row">
+        <div class="col-12">
+            <div th:if="${tasks.empty}" class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <h4>Ingen oppgaver ennå</h4>
+                <p class="text-muted mb-4">Kom i gang ved å legge til din første oppgave!</p>
+                <a href="/add-task" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Legg til oppgave
+                </a>
+            </div>
+
+            <div th:if="${!tasks.empty}">
+                <div th:each="task : ${tasks}"
+                     class="card task-card"
+                     th:classappend="${task.completed} ? 'completed' : (${task.overdue} ? 'overdue' : '')"
+                     th:data-priority="${task.priority.name().toLowerCase()}">
+
+                    <div class="card-body" th:classappend="'priority-' + ${task.priority.name().toLowerCase()}">
+                        <div class="row align-items-start">
+                            <div class="col">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0 me-3" th:text="${task.title}">Oppgavetittel</h6>
+                                    <span class="badge badge-priority"
+                                          th:classappend="${task.priority.name() == 'HIGH'} ? 'bg-danger' : (${task.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-success')"
+                                          th:text="${task.priority.displayName}">Prioritet</span>
+                                </div>
+
+                                <p class="card-text text-muted mb-2" th:text="${task.description}">Beskrivelse</p>
+
+                                <!-- Work Task Info -->
+                                <div th:if="${task.class.simpleName == 'WorkTask'}" class="task-meta mb-2">
+                                    <i class="fas fa-briefcase text-primary me-1"></i>
+                                    <span th:text="'Prosjekt: ' + ${task.project}"></span>
+                                    <span th:if="${!#strings.isEmpty(task.client)}" th:text="' | Kunde: ' + ${task.client}"></span>
+                                    <span th:if="${!#strings.isEmpty(task.department)}" th:text="' | Avdeling: ' + ${task.department}"></span>
+                                </div>
+
+                                <!-- Personal Task Info -->
+                                <div th:if="${task.class.simpleName == 'PersonalTask'}" class="task-meta mb-2">
+                                    <i class="fas fa-user text-success me-1"></i>
+                                    <span th:text="'Kategori: ' + ${task.category}"></span>
+                                    <span th:if="${!#strings.isEmpty(task.location)}" th:text="' | Sted: ' + ${task.location}"></span>
+                                </div>
+
+                                <div class="task-meta">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <span th:text="'Frist: ' + ${task.formattedDueDate}"></span>
+                                    <span th:if="${task.overdue}" class="text-danger ms-2">
+                                            <i class="fas fa-exclamation-triangle"></i> Forfalt
+                                        </span>
+                                    <span th:if="${task.completed}" class="text-success ms-2">
+                                            <i class="fas fa-check-circle"></i> Fullført
+                                        </span>
+                                </div>
+                            </div>
+
+                            <div class="col-auto">
+                                <div class="btn-group-vertical btn-group-sm">
+                                    <a th:href="@{/edit-task/{id}(id=${task.id})}"
+                                       class="btn btn-outline-primary btn-sm mb-1"
+                                       title="Rediger oppgave">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <form th:if="${!task.completed}"
+                                          th:action="@{/complete-task/{id}(id=${task.id})}"
+                                          method="post" class="d-inline mb-1">
+                                        <button type="submit"
+                                                class="btn btn-outline-success btn-sm"
+                                                title="Marker som fullført">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+
+                                    <form th:action="@{/delete-task/{id}(id=${task.id})}"
+                                          method="post" class="d-inline">
+                                        <button type="submit"
+                                                class="btn btn-outline-danger btn-sm btn-delete"
+                                                title="Slett oppgave">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Button -->
+<a href="/add-task" class="btn btn-primary btn-floating">
+    <i class="fas fa-plus fa-lg"></i>
+</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
 </body>
 </html>
