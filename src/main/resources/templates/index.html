@@ -197,7 +197,9 @@
                  th:classappend="${task.completed} ? 'completed' : (${task.overdue} ? 'overdue' : '')"
                  th:data-priority="${task.priority.name().toLowerCase()}">
 
-                <div class="card-body" th:classappend="'priority-' + ${task.priority.name().toLowerCase()}">
+                <!-- PERFEKT ALIGNMENT: Bruker flex-column på card-body -->
+                <div class="card-body d-flex flex-column" th:classappend="'priority-' + ${task.priority.name().toLowerCase()}">
+
                     <!-- Task Header -->
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h5 class="card-title mb-0 flex-grow-1 me-2" th:text="${task.title}">Oppgavetittel</h5>
@@ -266,27 +268,41 @@
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-2">
-                        <a th:href="@{/edit-task/{taskUuid}(taskUuid=${task.taskUuid})}"
-                           class="btn btn-outline-primary btn-sm flex-fill">
-                            <i class="fas fa-edit me-1"></i>Rediger
-                        </a>
+                    <!-- VIKTIG: mt-auto skyver knappene til bunnen -->
+                    <div class="mt-auto">
+                        <!-- Action Buttons - PERFEKT ALIGNMENT -->
+                        <div class="d-flex gap-2 align-items-stretch">
+                            <!-- Rediger knapp - alltid synlig -->
+                            <a th:href="@{/edit-task/{taskUuid}(taskUuid=${task.taskUuid})}"
+                               class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="fas fa-edit me-1"></i>Rediger
+                            </a>
 
-                        <form th:if="${!task.completed}"
-                              th:action="@{/complete-task/{taskUuid}(taskUuid=${task.taskUuid})}"
-                              method="post" class="flex-fill">
-                            <button type="submit" class="btn btn-outline-success btn-sm w-100">
-                                <i class="fas fa-check me-1"></i>Fullfør
-                            </button>
-                        </form>
+                            <!-- Fullfør knapp - kun hvis ikke fullført -->
+                            <div th:if="${!task.completed}" class="flex-fill">
+                                <form th:action="@{/complete-task/{taskUuid}(taskUuid=${task.taskUuid})}"
+                                      method="post" class="w-100">
+                                    <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                                        <i class="fas fa-check me-1"></i>Fullfør
+                                    </button>
+                                </form>
+                            </div>
 
-                        <form th:action="@{/delete-task/{taskUuid}(taskUuid=${task.taskUuid})}"
-                              method="post">
-                            <button type="submit" class="btn btn-outline-danger btn-sm btn-delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                            <!-- Placeholder for fullførte oppgaver så layout forblir konsistent -->
+                            <div th:if="${task.completed}" class="flex-fill">
+                                <span class="btn btn-outline-secondary btn-sm w-100 disabled">
+                                    <i class="fas fa-check-circle me-1"></i>Fullført
+                                </span>
+                            </div>
+
+                            <!-- Slette knapp - fast bredde -->
+                            <form th:action="@{/delete-task/{taskUuid}(taskUuid=${task.taskUuid})}"
+                                  method="post" class="flex-shrink-0">
+                                <button type="submit" class="btn btn-outline-danger btn-sm btn-delete" style="width: 45px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -320,6 +336,99 @@
     }
     .text-primary {
         color: var(--primary) !important;
+    }
+
+    /* PERFEKT KNAPP-ALIGNMENT CSS */
+    .task-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .task-card .card-body {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    /* Knappene skyves til bunnen med mt-auto */
+    .task-card .mt-auto {
+        margin-top: auto !important;
+    }
+
+    /* Sikrer at alle knapper har samme høyde og alignment */
+    .task-card .d-flex.gap-2 {
+        min-height: 38px;
+        align-items: stretch;
+    }
+
+    .task-card .btn-sm {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        border-radius: 6px;
+    }
+
+    .task-card .flex-fill .btn,
+    .task-card .flex-fill .btn-sm {
+        height: 100%;
+        min-height: 38px;
+    }
+
+    .task-card .btn-delete {
+        width: 45px !important;
+        padding: 0.5rem 0.25rem;
+        flex-shrink: 0;
+    }
+
+    .task-card .btn.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        color: #6c757d;
+    }
+
+    /* Hover-effekter */
+    .task-card .btn:not(.disabled):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+
+    .task-card .btn.disabled:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Responsiv design for små skjermer */
+    @media (max-width: 576px) {
+        .task-card .d-flex.gap-2 {
+            flex-direction: column;
+            gap: 0.5rem !important;
+        }
+
+        .task-card .flex-fill {
+            width: 100%;
+        }
+
+        .task-card .btn-delete {
+            width: 100% !important;
+        }
+    }
+
+    /* Sikrer at alle kort har samme basisstruktur */
+    .task-card .card-body > * {
+        flex-shrink: 0;
+    }
+
+    .task-card .card-body > .mt-auto {
+        flex-shrink: 0;
+        margin-top: auto !important;
     }
 </style>
 </body>
