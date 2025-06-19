@@ -2,9 +2,11 @@ package com.taskmanager.controller;
 
 import com.taskmanager.model.*;
 import com.taskmanager.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -32,7 +34,7 @@ public class TaskController {
     }
 
     @PostMapping("/add-task")
-    public String addTask(@RequestParam String taskType,
+    public String addTask(@Valid @RequestParam String taskType,
                           @RequestParam String title,
                           @RequestParam String description,
                           @RequestParam String dueDate,
@@ -45,22 +47,42 @@ public class TaskController {
                           RedirectAttributes redirectAttributes) {
 
         try {
+            // Validate input
+            if (title == null || title.trim().isEmpty()) {
+                throw new IllegalArgumentException("Tittel kan ikke være tom");
+            }
+
+            if (dueDate == null || dueDate.trim().isEmpty()) {
+                throw new IllegalArgumentException("Forfallsdato må angis");
+            }
+
             LocalDate parsedDate = LocalDate.parse(dueDate);
             Task newTask;
 
             if ("work".equals(taskType)) {
-                newTask = taskService.createWorkTask(title, description, parsedDate, priority,
-                        project != null ? project : "",
-                        client != null ? client : "",
-                        department != null ? department : "");
+                newTask = taskService.createWorkTask(
+                        title.trim(),
+                        description != null ? description.trim() : "",
+                        parsedDate,
+                        priority,
+                        project != null ? project.trim() : "",
+                        client != null ? client.trim() : "",
+                        department != null ? department.trim() : ""
+                );
             } else {
-                newTask = taskService.createPersonalTask(title, description, parsedDate, priority,
-                        category != null ? category : "Generell",
-                        location != null ? location : "");
+                newTask = taskService.createPersonalTask(
+                        title.trim(),
+                        description != null ? description.trim() : "",
+                        parsedDate,
+                        priority,
+                        category != null ? category.trim() : "Generell",
+                        location != null ? location.trim() : ""
+                );
             }
 
             taskService.addTask(newTask);
-            redirectAttributes.addFlashAttribute("success", "✅ Oppgave '" + title + "' ble lagt til!");
+            redirectAttributes.addFlashAttribute("success",
+                    "✅ Oppgave '" + title + "' ble lagt til med ID: " + newTask.getTaskUuid());
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "❌ Feil ved opprettelse: " + e.getMessage());
@@ -69,56 +91,71 @@ public class TaskController {
         return "redirect:/";
     }
 
-    @PostMapping("/complete-task/{id}")
-    public String completeTask(@PathVariable String id, RedirectAttributes redirectAttributes) {
-        Optional<Task> task = taskService.findTaskById(id);
-        if (taskService.completeTask(id)) {
-            redirectAttributes.addFlashAttribute("success", "✅ Oppgave fullført!");
+    @PostMapping("/complete-task/{taskUuid}")
+    public String completeTask(@PathVariable String taskUuid, RedirectAttributes redirectAttributes) {
+        Optional<Task> task = taskService.findTaskById(taskUuid);
+        if (taskService.completeTask(taskUuid)) {
+            redirectAttributes.addFlashAttribute("success",
+                    "✅ Oppgave '" + task.get().getTitle() + "' fullført!");
         } else {
-            redirectAttributes.addFlashAttribute("error", "❌ Kunne ikke finne oppgave");
+            redirectAttributes.addFlashAttribute("error", "❌ Kunne ikke finne oppgave med ID: " + taskUuid);
         }
         return "redirect:/";
     }
 
-    @PostMapping("/delete-task/{id}")
-    public String deleteTask(@PathVariable String id, RedirectAttributes redirectAttributes) {
-        Optional<Task> task = taskService.findTaskById(id);
-        if (taskService.removeTask(id)) {
-            redirectAttributes.addFlashAttribute("success", "🗑️ Oppgave slettet");
+    @PostMapping("/delete-task/{taskUuid}")
+    public String deleteTask(@PathVariable String taskUuid, RedirectAttributes redirectAttributes) {
+        Optional<Task> task = taskService.findTaskById(taskUuid);
+        if (taskService.removeTask(taskUuid)) {
+            redirectAttributes.addFlashAttribute("success",
+                    "🗑️ Oppgave '" + task.get().getTitle() + "' slettet");
         } else {
-            redirectAttributes.addFlashAttribute("error", "❌ Kunne ikke slette oppgave");
+            redirectAttributes.addFlashAttribute("error", "❌ Kunne ikke slette oppgave med ID: " + taskUuid);
         }
         return "redirect:/";
     }
 
-    @GetMapping("/edit-task/{id}")
-    public String showEditTaskForm(@PathVariable String id, Model model) {
-        Optional<Task> task = taskService.findTaskById(id);
+    @GetMapping("/edit-task/{taskUuid}")
+    public String showEditTaskForm(@PathVariable String taskUuid, Model model) {
+        Optional<Task> task = taskService.findTaskById(taskUuid);
         if (task.isPresent()) {
             model.addAttribute("task", task.get());
             model.addAttribute("priorities", Task.Priority.values());
             return "edit-task";
+        } else {
+            model.addAttribute("error", "❌ Oppgave ikke funnet");
+            return "redirect:/";
         }
-        return "redirect:/";
     }
 
-    @PostMapping("/edit-task/{id}")
-    public String editTask(@PathVariable String id,
-                           @RequestParam String title,
+    @PostMapping("/edit-task/{taskUuid}")
+    public String editTask(@PathVariable String taskUuid,
+                           @Valid @RequestParam String title,
                            @RequestParam String description,
                            @RequestParam String dueDate,
                            @RequestParam Task.Priority priority,
                            RedirectAttributes redirectAttributes) {
 
         try {
+            // Validate input
+            if (title == null || title.trim().isEmpty()) {
+                throw new IllegalArgumentException("Tittel kan ikke være tom");
+            }
+
+            if (dueDate == null || dueDate.trim().isEmpty()) {
+                throw new IllegalArgumentException("Forfallsdato må angis");
+            }
+
             LocalDate parsedDate = LocalDate.parse(dueDate);
-            if (taskService.updateTask(id, title, description, parsedDate, priority)) {
+
+            if (taskService.updateTask(taskUuid, title.trim(),
+                    description != null ? description.trim() : "", parsedDate, priority)) {
                 redirectAttributes.addFlashAttribute("success", "✏️ Oppgave oppdatert!");
             } else {
                 redirectAttributes.addFlashAttribute("error", "❌ Kunne ikke oppdatere oppgave");
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "❌ Ugyldig dato");
+            redirectAttributes.addFlashAttribute("error", "❌ Feil ved oppdatering: " + e.getMessage());
         }
 
         return "redirect:/";
@@ -136,5 +173,57 @@ public class TaskController {
         model.addAttribute("tasks", taskService.getTasksByPriority(priority));
         model.addAttribute("pageTitle", "Oppgaver med " + priority.getDisplayName().toLowerCase() + " prioritet");
         return "task-list";
+    }
+
+    @GetMapping("/completed")
+    public String completedTasks(Model model) {
+        model.addAttribute("tasks", taskService.getCompletedTasks());
+        model.addAttribute("pageTitle", "Fullførte oppgaver");
+        return "task-list";
+    }
+
+    @GetMapping("/pending")
+    public String pendingTasks(Model model) {
+        model.addAttribute("tasks", taskService.getPendingTasks());
+        model.addAttribute("pageTitle", "Aktive oppgaver");
+        return "task-list";
+    }
+
+    @GetMapping("/overdue")
+    public String overdueTasks(Model model) {
+        model.addAttribute("tasks", taskService.getOverdueTasks());
+        model.addAttribute("pageTitle", "Forfalte oppgaver");
+        return "task-list";
+    }
+
+    @GetMapping("/search")
+    public String searchTasks(@RequestParam String query, Model model) {
+        if (query == null || query.trim().isEmpty()) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("tasks", taskService.searchTasksByTitle(query.trim()));
+        model.addAttribute("pageTitle", "Søkeresultater for: \"" + query + "\"");
+        model.addAttribute("searchQuery", query);
+        return "task-list";
+    }
+
+    @PostMapping("/delete-completed")
+    public String deleteCompletedTasks(RedirectAttributes redirectAttributes) {
+        int deletedCount = taskService.deleteCompletedTasks();
+        if (deletedCount > 0) {
+            redirectAttributes.addFlashAttribute("success",
+                    "🗑️ Slettet " + deletedCount + " fullførte oppgaver");
+        } else {
+            redirectAttributes.addFlashAttribute("info", "📭 Ingen fullførte oppgaver å slette");
+        }
+        return "redirect:/";
+    }
+
+    // Error handler for this controller
+    @ExceptionHandler(Exception.class)
+    public String handleException(Exception e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", "❌ En feil oppstod: " + e.getMessage());
+        return "redirect:/";
     }
 }
