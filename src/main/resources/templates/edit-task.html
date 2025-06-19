@@ -36,14 +36,14 @@
                     <p class="text-muted">Oppdater informasjonen for oppgaven</p>
                 </div>
 
-                <form th:action="@{/edit-task/{id}(id=${task.id})}" method="post" id="editTaskForm">
+                <form th:action="@{/edit-task/{taskUuid}(taskUuid=${task.taskUuid})}" method="post" id="editTaskForm">
                     <!-- Task Info Display -->
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-light">
                             <div class="row align-items-center">
                                 <div class="col-md-6">
                                     <strong>Oppgave-ID:</strong>
-                                    <span class="badge bg-secondary ms-2" th:text="${task.id}">ID</span>
+                                    <span class="badge bg-secondary ms-2" th:text="${task.taskUuid}">ID</span>
                                 </div>
                                 <div class="col-md-6 text-md-end mt-2 mt-md-0">
                                     <strong>Type:</strong>
@@ -191,7 +191,7 @@
                                         </a>
 
                                         <form th:if="${!task.completed}"
-                                              th:action="@{/complete-task/{id}(id=${task.id})}"
+                                              th:action="@{/complete-task/{taskUuid}(taskUuid=${task.taskUuid})}"
                                               method="post" class="d-inline">
                                             <button type="submit" class="btn btn-success">
                                                 <i class="fas fa-check me-2"></i>Fullfør
