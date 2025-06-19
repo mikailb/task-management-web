@@ -87,7 +87,7 @@ class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("add-task"))
                 .andExpect(model().attributeExists("priorities"))
-                .andExpected(model().attribute("priorities", hasSize(3)));
+                .andExpect(model().attribute("priorities", hasSize(3)));
     }
 
     @Test
@@ -102,7 +102,7 @@ class TaskControllerTest {
                         .param("project", "Test Project")
                         .param("client", "Test Client")
                         .param("department", "IT"))
-                .andExpected(status().is3xxRedirection())
+                .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("success"));
 
@@ -129,7 +129,7 @@ class TaskControllerTest {
                         .param("priority", "MEDIUM")
                         .param("category", "Health")
                         .param("location", "Gym"))
-                .andExpected(status().is3xxRedirection())
+                .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("success"));
 
@@ -153,9 +153,9 @@ class TaskControllerTest {
                         .param("description", "Description")
                         .param("dueDate", LocalDate.now().plusDays(1).toString())
                         .param("priority", "HIGH"))
-                .andExpected(status().is3xxRedirection())
+                .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpected(flash().attributeExists("error"));
+                .andExpect(flash().attributeExists("error"));
 
         verify(taskService, never()).addTask(any());
     }
@@ -169,7 +169,7 @@ class TaskControllerTest {
         // When & Then
         mockMvc.perform(post("/complete-task/wt123456"))
                 .andExpect(status().is3xxRedirection())
-                .andExpected(redirectedUrl("/"))
+                .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("success"));
 
         verify(taskService).completeTask("wt123456");
@@ -195,9 +195,9 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(post("/delete-task/wt123456"))
-                .andExpected(status().is3xxRedirection())
-                .andExpected(redirectedUrl("/"))
-                .andExpected(flash().attributeExists("success"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("success"));
 
         verify(taskService).removeTask("wt123456");
     }
@@ -209,11 +209,11 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(get("/edit-task/wt123456"))
-                .andExpected(status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(view().name("edit-task"))
                 .andExpect(model().attributeExists("task"))
                 .andExpect(model().attributeExists("priorities"))
-                .andExpected(model().attribute("task", is(workTask)));
+                .andExpect(model().attribute("task", is(workTask)));
     }
 
     @Test
@@ -224,7 +224,7 @@ class TaskControllerTest {
         // When & Then
         mockMvc.perform(get("/edit-task/nonexistent"))
                 .andExpect(status().is3xxRedirection())
-                .andExpected(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/"));
     }
 
     @Test
@@ -245,7 +245,7 @@ class TaskControllerTest {
                         .param("dueDate", LocalDate.now().plusDays(3).toString())
                         .param("priority", "MEDIUM"))
                 .andExpect(status().is3xxRedirection())
-                .andExpected(redirectedUrl("/"))
+                .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("success"));
 
         verify(taskService).updateTask(
@@ -264,12 +264,12 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(get("/upcoming"))
-                .andExpected(status().isOk())
-                .andExpected(view().name("task-list"))
-                .andExpected(model().attributeExists("tasks"))
-                .andExpected(model().attributeExists("pageTitle"))
-                .andExpected(model().attribute("tasks", hasSize(1)))
-                .andExpected(model().attribute("pageTitle", containsString("Kommende oppgaver")));
+                .andExpect(status().isOk())
+                .andExpect(view().name("task-list"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attributeExists("pageTitle"))
+                .andExpect(model().attribute("tasks", hasSize(1)))
+                .andExpect(model().attribute("pageTitle", containsString("Kommende oppgaver")));
     }
 
     @Test
@@ -280,12 +280,12 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(get("/priority/HIGH"))
-                .andExpected(status().isOk())
-                .andExpected(view().name("task-list"))
-                .andExpected(model().attributeExists("tasks"))
-                .andExpected(model().attributeExists("pageTitle"))
-                .andExpected(model().attribute("tasks", hasSize(1)))
-                .andExpected(model().attribute("pageTitle", containsString("høy prioritet")));
+                .andExpect(status().isOk())
+                .andExpect(view().name("task-list"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attributeExists("pageTitle"))
+                .andExpect(model().attribute("tasks", hasSize(1)))
+                .andExpect(model().attribute("pageTitle", containsString("høy prioritet")));
     }
 
     @Test
@@ -296,10 +296,10 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(get("/completed"))
-                .andExpected(status().isOk())
-                .andExpected(view().name("task-list"))
-                .andExpected(model().attributeExists("tasks"))
-                .andExpected(model().attribute("pageTitle", containsString("Fullførte oppgaver")));
+                .andExpect(status().isOk())
+                .andExpect(view().name("task-list"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attribute("pageTitle", containsString("Fullførte oppgaver")));
     }
 
     @Test
@@ -311,13 +311,13 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(get("/search").param("query", searchQuery))
-                .andExpected(status().isOk())
-                .andExpected(view().name("task-list"))
-                .andExpected(model().attributeExists("tasks"))
-                .andExpected(model().attributeExists("pageTitle"))
-                .andExpected(model().attributeExists("searchQuery"))
-                .andExpected(model().attribute("tasks", hasSize(2)))
-                .andExpected(model().attribute("searchQuery", is(searchQuery)));
+                .andExpect(status().isOk())
+                .andExpect(view().name("task-list"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attributeExists("pageTitle"))
+                .andExpect(model().attributeExists("searchQuery"))
+                .andExpect(model().attribute("tasks", hasSize(2)))
+                .andExpect(model().attribute("searchQuery", is(searchQuery)));
     }
 
     @Test
@@ -325,7 +325,7 @@ class TaskControllerTest {
         // When & Then
         mockMvc.perform(get("/search").param("query", ""))
                 .andExpect(status().is3xxRedirection())
-                .andExpected(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/"));
 
         verify(taskService, never()).searchTasksByTitle(any());
     }
@@ -337,9 +337,9 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(post("/delete-completed"))
-                .andExpected(status().is3xxRedirection())
-                .andExpected(redirectedUrl("/"))
-                .andExpected(flash().attributeExists("success"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("success"));
 
         verify(taskService).deleteCompletedTasks();
     }
@@ -351,8 +351,8 @@ class TaskControllerTest {
 
         // When & Then
         mockMvc.perform(post("/delete-completed"))
-                .andExpected(status().is3xxRedirection())
-                .andExpected(redirectedUrl("/"))
-                .andExpected(flash().attributeExists("info"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("info"));
     }
 }
