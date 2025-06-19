@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rediger oppgave - Oppgavebehandlingssystem</title>
+    <title>Rediger oppgave - TaskFlow</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="/">
-            <i class="fas fa-tasks me-2"></i>Oppgavebehandlingssystem
+            <i class="fas fa-check-circle me-2"></i>TaskFlow
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/">
@@ -25,149 +25,185 @@
 
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
+        <div class="col-lg-8 col-xl-6">
             <div class="form-container">
-                <div class="text-center mb-4">
-                    <h2 class="text-primary">
-                        <i class="fas fa-edit me-2"></i>Rediger oppgave
-                    </h2>
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <div class="mb-3">
+                        <i class="fas fa-edit text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="fw-bold text-primary mb-2">Rediger oppgave</h2>
                     <p class="text-muted">Oppdater informasjonen for oppgaven</p>
                 </div>
 
                 <form th:action="@{/edit-task/{id}(id=${task.id})}" method="post" id="editTaskForm">
                     <!-- Task Info Display -->
-                    <div class="alert alert-info mb-4">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong>Oppgave-ID:</strong> <span th:text="${task.id}">ID</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Type:</strong>
-                                <span th:if="${task.class.simpleName == 'WorkTask'}" class="badge bg-primary">
-                                        <i class="fas fa-briefcase me-1"></i>Jobboppgave
-                                    </span>
-                                <span th:if="${task.class.simpleName == 'PersonalTask'}" class="badge bg-success">
-                                        <i class="fas fa-user me-1"></i>Personlig oppgave
-                                    </span>
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <strong>Oppgave-ID:</strong>
+                                    <span class="badge bg-secondary ms-2" th:text="${task.id}">ID</span>
+                                </div>
+                                <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                                    <strong>Type:</strong>
+                                    <span th:if="${task.isWorkTask()}" class="badge bg-primary ms-2">
+                                            <i class="fas fa-briefcase me-1"></i>Jobboppgave
+                                        </span>
+                                    <span th:if="${task.isPersonalTask()}" class="badge bg-success ms-2">
+                                            <i class="fas fa-user me-1"></i>Personlig oppgave
+                                        </span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Basic Information -->
-                    <div class="mb-3">
-                        <label for="title" class="form-label fw-bold">Tittel *</label>
-                        <input type="text" class="form-control form-control-lg" id="title" name="title"
-                               th:value="${task.title}" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label fw-bold">Beskrivelse</label>
-                        <textarea class="form-control" id="description" name="description" rows="4"
-                                  th:text="${task.description}"></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="dueDate" class="form-label fw-bold">Forfallsdato *</label>
-                            <input type="date" class="form-control" id="dueDate" name="dueDate"
-                                   th:value="${task.dueDate}" required>
+                    <!-- Basic Information Card -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0 fw-bold text-dark">
+                                <i class="fas fa-info-circle me-2 text-primary"></i>Grunnleggende informasjon
+                            </h5>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="priority" class="form-label fw-bold">Prioritet *</label>
-                            <select class="form-select" id="priority" name="priority" required>
-                                <option th:each="priority : ${priorities}"
-                                        th:value="${priority}"
-                                        th:text="${priority.displayName}"
-                                        th:selected="${priority == task.priority}">Prioritet</option>
-                            </select>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label for="title" class="form-label fw-bold">Tittel *</label>
+                                <input type="text" class="form-control form-control-lg" id="title" name="title"
+                                       th:value="${task.title}" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="description" class="form-label fw-bold">Beskrivelse</label>
+                                <textarea class="form-control" id="description" name="description" rows="4"
+                                          th:text="${task.description}"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="dueDate" class="form-label fw-bold">Forfallsdato *</label>
+                                    <input type="date" class="form-control" id="dueDate" name="dueDate"
+                                           th:value="${task.dueDate}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="priority" class="form-label fw-bold">Prioritet *</label>
+                                    <select class="form-select" id="priority" name="priority" required>
+                                        <option th:each="priority : ${priorities}"
+                                                th:value="${priority}"
+                                                th:text="${priority.displayName}"
+                                                th:selected="${priority == task.priority}">Prioritet</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Display specific fields based on task type -->
-                    <div th:if="${task.class.simpleName == 'WorkTask'}">
-                        <hr class="my-4">
-                        <h5 class="text-primary mb-3">
-                            <i class="fas fa-briefcase me-2"></i>Jobbinformasjon
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Prosjekt</label>
-                                <input type="text" class="form-control" th:value="${task.project}" readonly>
+                    <div th:if="${task.isWorkTask()}" class="card border-0 shadow-sm mb-4">
+                        <div class="card-header" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                            <h5 class="mb-0 fw-bold text-white">
+                                <i class="fas fa-briefcase me-2"></i>Jobbinformasjon
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Prosjekt</label>
+                                    <input type="text" class="form-control" th:value="${task.project}" readonly>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Kunde</label>
+                                    <input type="text" class="form-control" th:value="${task.client}" readonly>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Avdeling</label>
+                                    <input type="text" class="form-control" th:value="${task.department}" readonly>
+                                </div>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Kunde</label>
-                                <input type="text" class="form-control" th:value="${task.client}" readonly>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Avdeling</label>
-                                <input type="text" class="form-control" th:value="${task.department}" readonly>
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <small>Jobbspesifikke felt kan ikke endres. Opprett ny oppgave hvis nødvendig.</small>
                             </div>
                         </div>
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Jobbspesifikke felt kan ikke endres. Opprett ny oppgave hvis nødvendig.
-                        </small>
                     </div>
 
-                    <div th:if="${task.class.simpleName == 'PersonalTask'}">
-                        <hr class="my-4">
-                        <h5 class="text-success mb-3">
-                            <i class="fas fa-user me-2"></i>Personlig informasjon
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Kategori</label>
-                                <input type="text" class="form-control" th:value="${task.category}" readonly>
+                    <div th:if="${task.isPersonalTask()}" class="card border-0 shadow-sm mb-4">
+                        <div class="card-header" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <h5 class="mb-0 fw-bold text-white">
+                                <i class="fas fa-user me-2"></i>Personlig informasjon
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Kategori</label>
+                                    <input type="text" class="form-control" th:value="${task.category}" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Sted</label>
+                                    <input type="text" class="form-control" th:value="${task.location}" readonly>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Sted</label>
-                                <input type="text" class="form-control" th:value="${task.location}" readonly>
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <small>Personlige felt kan ikke endres. Opprett ny oppgave hvis nødvendig.</small>
                             </div>
                         </div>
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Personlige felt kan ikke endres. Opprett ny oppgave hvis nødvendig.
-                        </small>
                     </div>
 
                     <!-- Task Status -->
-                    <hr class="my-4">
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Oppgavestatus</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong>Status:</strong>
-                                <span th:if="${task.completed}" class="badge bg-success ms-2">
-                                        <i class="fas fa-check-circle me-1"></i>Fullført
-                                    </span>
-                                <span th:unless="${task.completed}" class="badge bg-warning text-dark ms-2">
-                                        <i class="fas fa-clock me-1"></i>Aktiv
-                                    </span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Opprettet:</strong>
-                                <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Dato</span>
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0 fw-bold text-dark">
+                                <i class="fas fa-chart-line me-2 text-primary"></i>Oppgavestatus
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <strong>Status:</strong>
+                                    <span th:if="${task.completed}" class="badge bg-success ms-2">
+                                            <i class="fas fa-check-circle me-1"></i>Fullført
+                                        </span>
+                                    <span th:unless="${task.completed}" class="badge bg-warning text-dark ms-2">
+                                            <i class="fas fa-clock me-1"></i>Aktiv
+                                        </span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Opprettet:</strong>
+                                    <span class="text-muted" th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Dato</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Submit Buttons -->
-                    <hr class="my-4">
-                    <div class="d-flex justify-content-between">
-                        <a href="/" class="btn btn-secondary btn-lg">
-                            <i class="fas fa-times me-2"></i>Avbryt
-                        </a>
-                        <div>
-                            <form th:if="${!task.completed}"
-                                  th:action="@{/complete-task/{id}(id=${task.id})}"
-                                  method="post" class="d-inline me-2">
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    <i class="fas fa-check me-2"></i>Marker som fullført
-                                </button>
-                            </form>
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save me-2"></i>Lagre endringer
-                            </button>
+                    <!-- Submit Section -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2 justify-content-md-end mt-3 mt-md-0">
+                                        <a href="/" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-2"></i>Avbryt
+                                        </a>
+
+                                        <form th:if="${!task.completed}"
+                                              th:action="@{/complete-task/{id}(id=${task.id})}"
+                                              method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check me-2"></i>Fullfør
+                                            </button>
+                                        </form>
+
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Lagre endringer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -178,5 +214,23 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="/js/app.js"></script>
+
+<style>
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    }
+
+    .card-header {
+        border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
 </body>
 </html>

@@ -68,6 +68,20 @@ public class Task implements Serializable {
         return dueDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
+    // Ny metode for å identifisere oppgavetype i Thymeleaf
+    public String getTaskType() {
+        return this.getClass().getSimpleName();
+    }
+
+    // Hjelpemetoder for å sjekke oppgavetype
+    public boolean isWorkTask() {
+        return this instanceof WorkTask;
+    }
+
+    public boolean isPersonalTask() {
+        return this instanceof PersonalTask;
+    }
+
     @Override
     public String toString() {
         return String.format("Task [%s] %s (Frist: %s, Prioritet: %s, %s)",

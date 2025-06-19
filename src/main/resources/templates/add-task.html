@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legg til oppgave - Oppgavebehandlingssystem</title>
+    <title>Legg til oppgave - TaskFlow</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="/">
-            <i class="fas fa-tasks me-2"></i>Oppgavebehandlingssystem
+            <i class="fas fa-check-circle me-2"></i>TaskFlow
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/">
@@ -25,140 +25,189 @@
 
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
+        <div class="col-lg-8 col-xl-6">
             <div class="form-container">
-                <div class="text-center mb-4">
-                    <h2 class="text-primary">
-                        <i class="fas fa-plus-circle me-2"></i>Legg til ny oppgave
-                    </h2>
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <div class="mb-3">
+                        <i class="fas fa-plus-circle text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="fw-bold text-primary mb-2">Ny oppgave</h2>
                     <p class="text-muted">Fyll inn informasjonen for den nye oppgaven</p>
                 </div>
 
                 <form action="/add-task" method="post" id="taskForm">
                     <!-- Task Type Selection -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Oppgavetype *</label>
+                    <div class="mb-5">
+                        <label class="form-label fw-bold text-uppercase mb-3">Oppgavetype *</label>
                         <div class="row g-3">
                             <div class="col-6">
                                 <input type="radio" class="btn-check" name="taskType" id="workTask" value="work" checked>
-                                <label class="btn btn-outline-primary w-100 py-3" for="workTask">
-                                    <i class="fas fa-briefcase fa-2x d-block mb-2"></i>
-                                    <strong>Jobboppgave</strong>
-                                    <small class="d-block text-muted">Arbeidsrelatert oppgave</small>
+                                <label class="btn btn-outline-primary w-100 py-4 h-100" for="workTask">
+                                    <div class="text-center">
+                                        <i class="fas fa-briefcase fa-3x d-block mb-3 text-primary"></i>
+                                        <h5 class="fw-bold mb-2">Jobboppgave</h5>
+                                        <small class="text-muted">Arbeidsrelatert oppgave med prosjekt og kunde</small>
+                                    </div>
                                 </label>
                             </div>
                             <div class="col-6">
                                 <input type="radio" class="btn-check" name="taskType" id="personalTask" value="personal">
-                                <label class="btn btn-outline-success w-100 py-3" for="personalTask">
-                                    <i class="fas fa-user fa-2x d-block mb-2"></i>
-                                    <strong>Personlig oppgave</strong>
-                                    <small class="d-block text-muted">Privat oppgave</small>
+                                <label class="btn btn-outline-success w-100 py-4 h-100" for="personalTask">
+                                    <div class="text-center">
+                                        <i class="fas fa-user fa-3x d-block mb-3 text-success"></i>
+                                        <h5 class="fw-bold mb-2">Personlig oppgave</h5>
+                                        <small class="text-muted">Privat oppgave med kategori og sted</small>
+                                    </div>
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Basic Information -->
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label for="title" class="form-label fw-bold">Tittel *</label>
-                            <input type="text" class="form-control form-control-lg" id="title" name="title"
-                                   placeholder="Skriv en beskrivende tittel..." required>
+                    <!-- Basic Information Card -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0 fw-bold text-dark">
+                                <i class="fas fa-info-circle me-2 text-primary"></i>Grunnleggende informasjon
+                            </h5>
                         </div>
-                    </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label for="title" class="form-label fw-bold">Tittel *</label>
+                                <input type="text" class="form-control form-control-lg" id="title" name="title"
+                                       placeholder="Skriv en beskrivende tittel..." required>
+                                <div class="form-text">Gi oppgaven et kort og beskrivende navn</div>
+                            </div>
 
-                    <div class="mb-3">
-                        <label for="description" class="form-label fw-bold">Beskrivelse</label>
-                        <textarea class="form-control" id="description" name="description" rows="4"
-                                  placeholder="Legg til detaljer om oppgaven..."></textarea>
-                    </div>
+                            <div class="mb-4">
+                                <label for="description" class="form-label fw-bold">Beskrivelse</label>
+                                <textarea class="form-control" id="description" name="description" rows="4"
+                                          placeholder="Legg til detaljer om oppgaven..."></textarea>
+                                <div class="form-text">Beskriv hva som skal gjøres (valgfritt)</div>
+                            </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="dueDate" class="form-label fw-bold">Forfallsdato *</label>
-                            <input type="date" class="form-control" id="dueDate" name="dueDate" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="priority" class="form-label fw-bold">Prioritet *</label>
-                            <select class="form-select" id="priority" name="priority" required>
-                                <option value="">Velg prioritet</option>
-                                <option value="LOW">🟢 Lav prioritet</option>
-                                <option value="MEDIUM" selected>🟡 Medium prioritet</option>
-                                <option value="HIGH">🔴 Høy prioritet</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="dueDate" class="form-label fw-bold">Forfallsdato *</label>
+                                    <input type="date" class="form-control" id="dueDate" name="dueDate" required>
+                                    <div class="form-text">Når må oppgaven være ferdig?</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="priority" class="form-label fw-bold">Prioritet *</label>
+                                    <select class="form-select" id="priority" name="priority" required>
+                                        <option value="">Velg prioritet</option>
+                                        <option value="LOW">🟢 Lav prioritet</option>
+                                        <option value="MEDIUM" selected>🟡 Medium prioritet</option>
+                                        <option value="HIGH">🔴 Høy prioritet</option>
+                                    </select>
+                                    <div class="form-text">Hvor viktig er denne oppgaven?</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Work-specific fields -->
                     <div id="workFields" class="work-specific">
-                        <hr class="my-4">
-                        <h5 class="text-primary mb-3">
-                            <i class="fas fa-briefcase me-2"></i>Jobbinformasjon
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="project" class="form-label">Prosjekt</label>
-                                <input type="text" class="form-control" id="project" name="project"
-                                       placeholder="Prosjektnavn">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                <h5 class="mb-0 fw-bold text-white">
+                                    <i class="fas fa-briefcase me-2"></i>Jobbinformasjon
+                                </h5>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="client" class="form-label">Kunde</label>
-                                <input type="text" class="form-control" id="client" name="client"
-                                       placeholder="Kundenavn">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="department" class="form-label">Avdeling</label>
-                                <select class="form-select" id="department" name="department">
-                                    <option value="">Velg avdeling</option>
-                                    <option value="IT">IT</option>
-                                    <option value="Salg">Salg</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="HR">HR</option>
-                                    <option value="Økonomi">Økonomi</option>
-                                    <option value="Drift">Drift</option>
-                                </select>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="project" class="form-label fw-bold">Prosjekt</label>
+                                        <input type="text" class="form-control" id="project" name="project"
+                                               placeholder="Prosjektnavn">
+                                        <div class="form-text">Hvilket prosjekt tilhører oppgaven?</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="client" class="form-label fw-bold">Kunde</label>
+                                        <input type="text" class="form-control" id="client" name="client"
+                                               placeholder="Kundenavn">
+                                        <div class="form-text">Hvem er kunden for denne oppgaven?</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="department" class="form-label fw-bold">Avdeling</label>
+                                        <select class="form-select" id="department" name="department">
+                                            <option value="">Velg avdeling</option>
+                                            <option value="IT">💻 IT</option>
+                                            <option value="Salg">💼 Salg</option>
+                                            <option value="Marketing">📢 Marketing</option>
+                                            <option value="HR">👥 HR</option>
+                                            <option value="Økonomi">💰 Økonomi</option>
+                                            <option value="Drift">⚙️ Drift</option>
+                                            <option value="Utvikling">🚀 Utvikling</option>
+                                            <option value="Design">🎨 Design</option>
+                                        </select>
+                                        <div class="form-text">Hvilken avdeling er ansvarlig?</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Personal-specific fields -->
                     <div id="personalFields" class="personal-specific" style="display: none;">
-                        <hr class="my-4">
-                        <h5 class="text-success mb-3">
-                            <i class="fas fa-user me-2"></i>Personlig informasjon
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="category" class="form-label">Kategori</label>
-                                <select class="form-select" id="category" name="category">
-                                    <option value="Generell" selected>Generell</option>
-                                    <option value="Hjem">🏠 Hjem</option>
-                                    <option value="Helse">🏥 Helse</option>
-                                    <option value="Utdanning">🎓 Utdanning</option>
-                                    <option value="Hobby">🎨 Hobby</option>
-                                    <option value="Familie">👨‍👩‍👧‍👦 Familie</option>
-                                    <option value="Shopping">🛒 Shopping</option>
-                                    <option value="Reise">✈️ Reise</option>
-                                    <option value="Sport">⚽ Sport</option>
-                                </select>
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                <h5 class="mb-0 fw-bold text-white">
+                                    <i class="fas fa-user me-2"></i>Personlig informasjon
+                                </h5>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="location" class="form-label">Sted</label>
-                                <input type="text" class="form-control" id="location" name="location"
-                                       placeholder="Hvor skal oppgaven utføres?">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="category" class="form-label fw-bold">Kategori</label>
+                                        <select class="form-select" id="category" name="category">
+                                            <option value="Generell" selected>📝 Generell</option>
+                                            <option value="Hjem">🏠 Hjem</option>
+                                            <option value="Helse">🏥 Helse</option>
+                                            <option value="Utdanning">🎓 Utdanning</option>
+                                            <option value="Hobby">🎨 Hobby</option>
+                                            <option value="Familie">👨‍👩‍👧‍👦 Familie</option>
+                                            <option value="Shopping">🛒 Shopping</option>
+                                            <option value="Reise">✈️ Reise</option>
+                                            <option value="Sport">⚽ Sport</option>
+                                            <option value="Økonomi">💳 Økonomi</option>
+                                            <option value="Bil">🚗 Bil</option>
+                                            <option value="Hage">🌱 Hage</option>
+                                        </select>
+                                        <div class="form-text">Hvilken type personlig oppgave er dette?</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="location" class="form-label fw-bold">Sted</label>
+                                        <input type="text" class="form-control" id="location" name="location"
+                                               placeholder="Hvor skal oppgaven utføres?">
+                                        <div class="form-text">Hvor skal du utføre denne oppgaven?</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Submit Buttons -->
-                    <hr class="my-4">
-                    <div class="d-flex justify-content-between">
-                        <a href="/" class="btn btn-secondary btn-lg">
-                            <i class="fas fa-times me-2"></i>Avbryt
-                        </a>
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-2"></i>Lagre oppgave
-                        </button>
+                    <!-- Submit Section -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-3 justify-content-md-end mt-3 mt-md-0">
+                                        <a href="/" class="btn btn-outline-secondary btn-lg">
+                                            <i class="fas fa-times me-2"></i>Avbryt
+                                        </a>
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-save me-2"></i>Lagre oppgave
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -168,5 +217,59 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="/js/app.js"></script>
+
+<style>
+    .btn-check:checked + .btn-outline-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-check:checked + .btn-outline-success {
+        background: linear-gradient(135deg, var(--success), #059669);
+        border-color: var(--success);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .card-header {
+        border-bottom: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-success:hover {
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 2rem 1.5rem;
+        }
+
+        .btn-outline-primary,
+        .btn-outline-success {
+            padding: 2rem 1rem;
+        }
+
+        .fa-3x {
+            font-size: 2rem !important;
+        }
+    }
+</style>
 </body>
 </html>

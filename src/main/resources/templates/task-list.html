@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle} + ' - Oppgavebehandlingssystem'">Oppgaver - Oppgavebehandlingssystem</title>
+    <title th:text="${pageTitle} + ' - TaskFlow'">Oppgaver - TaskFlow</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="/">
-            <i class="fas fa-tasks me-2"></i>Oppgavebehandlingssystem
+            <i class="fas fa-check-circle me-2"></i>TaskFlow
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/add-task">
@@ -28,39 +28,42 @@
 
 <div class="container mt-4">
     <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 th:text="${pageTitle}">Oppgaver</h2>
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h2 class="fw-bold text-primary mb-2" th:text="${pageTitle}">Oppgaver</h2>
             <p class="text-muted mb-0">
+                <i class="fas fa-list me-1"></i>
                 <span th:text="${tasks.size()}">0</span> oppgave(r) funnet
             </p>
         </div>
-        <div>
-            <a href="/" class="btn btn-outline-secondary me-2">
-                <i class="fas fa-arrow-left me-1"></i>Alle oppgaver
-            </a>
-            <a href="/add-task" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Ny oppgave
-            </a>
+        <div class="col-auto">
+            <div class="btn-group">
+                <a href="/" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Alle oppgaver
+                </a>
+                <a href="/add-task" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Ny oppgave
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Filter Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb bg-white p-3 rounded shadow-sm">
             <li class="breadcrumb-item">
                 <a href="/" class="text-decoration-none">
                     <i class="fas fa-home me-1"></i>Hjem
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page" th:text="${pageTitle}">Filtrerte oppgaver</li>
+            <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page" th:text="${pageTitle}">Filtrerte oppgaver</li>
         </ol>
     </nav>
 
     <!-- Quick Filters -->
-    <div class="row mb-4">
-        <div class="col">
-            <div class="btn-group flex-wrap" role="group" aria-label="Hurtigfiltre">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
                 <a href="/" class="btn btn-outline-primary">
                     <i class="fas fa-list me-1"></i>Alle
                 </a>
@@ -82,22 +85,26 @@
 
     <!-- Empty State -->
     <div th:if="${tasks.empty}" class="empty-state">
-        <i class="fas fa-search"></i>
-        <h4>Ingen oppgaver funnet</h4>
-        <p class="text-muted mb-4">Det finnes ingen oppgaver som matcher dette filteret.</p>
-        <div>
-            <a href="/" class="btn btn-outline-primary me-2">
-                <i class="fas fa-list me-1"></i>Se alle oppgaver
-            </a>
-            <a href="/add-task" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Legg til oppgave
-            </a>
+        <div class="text-center p-5">
+            <div class="mb-4">
+                <i class="fas fa-search text-muted" style="font-size: 5rem; opacity: 0.3;"></i>
+            </div>
+            <h3 class="text-muted mb-3">Ingen oppgaver funnet</h3>
+            <p class="text-muted mb-4">Det finnes ingen oppgaver som matcher dette filteret.</p>
+            <div>
+                <a href="/" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-list me-1"></i>Se alle oppgaver
+                </a>
+                <a href="/add-task" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Legg til oppgave
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Tasks Grid -->
-    <div th:if="${!tasks.empty}" class="row">
-        <div th:each="task : ${tasks}" class="col-lg-6 col-xl-4 mb-4">
+    <div th:if="${!tasks.empty}" class="row g-4">
+        <div th:each="task : ${tasks}" class="col-lg-6 col-xl-4">
             <div class="card task-card h-100"
                  th:classappend="${task.completed} ? 'completed' : (${task.overdue} ? 'overdue' : '')"
                  th:data-priority="${task.priority.name().toLowerCase()}">
@@ -105,7 +112,7 @@
                 <div class="card-body" th:classappend="'priority-' + ${task.priority.name().toLowerCase()}">
                     <!-- Task Header -->
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h6 class="card-title mb-0 me-2" th:text="${task.title}">Oppgavetittel</h6>
+                        <h6 class="card-title mb-0 me-2 flex-grow-1" th:text="${task.title}">Oppgavetittel</h6>
                         <span class="badge"
                               th:classappend="${task.priority.name() == 'HIGH'} ? 'bg-danger' : (${task.priority.name() == 'MEDIUM'} ? 'bg-warning text-dark' : 'bg-success')"
                               th:text="${task.priority.displayName}">Prioritet</span>
@@ -116,67 +123,79 @@
 
                     <!-- Task Type Info -->
                     <div class="mb-3">
-                        <div th:if="${task.class.simpleName == 'WorkTask'}" class="small text-primary">
-                            <i class="fas fa-briefcase me-1"></i>
-                            <strong>Jobboppgave</strong>
-                            <div class="mt-1">
-                                <span th:if="${!#strings.isEmpty(task.project)}" th:text="'📁 ' + ${task.project}"></span>
-                                <span th:if="${!#strings.isEmpty(task.client)}" class="d-block" th:text="'👤 ' + ${task.client}"></span>
-                                <span th:if="${!#strings.isEmpty(task.department)}" class="d-block" th:text="'🏢 ' + ${task.department}"></span>
+                        <div th:if="${task.isWorkTask()}" class="p-2 bg-primary-light rounded">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fas fa-briefcase text-primary me-2"></i>
+                                <small class="fw-semibold text-primary">Jobboppgave</small>
+                            </div>
+                            <div class="small text-muted">
+                                <div th:if="${!#strings.isEmpty(task.project)}" class="mb-1">
+                                    <i class="fas fa-folder me-1"></i>
+                                    <span th:text="${task.project}"></span>
+                                </div>
+                                <div th:if="${!#strings.isEmpty(task.client)}" class="mb-1">
+                                    <i class="fas fa-user-tie me-1"></i>
+                                    <span th:text="${task.client}"></span>
+                                </div>
+                                <div th:if="${!#strings.isEmpty(task.department)}">
+                                    <i class="fas fa-building me-1"></i>
+                                    <span th:text="${task.department}"></span>
+                                </div>
                             </div>
                         </div>
 
-                        <div th:if="${task.class.simpleName == 'PersonalTask'}" class="small text-success">
-                            <i class="fas fa-user me-1"></i>
-                            <strong>Personlig oppgave</strong>
-                            <div class="mt-1">
-                                <span th:text="'📝 ' + ${task.category}"></span>
-                                <span th:if="${!#strings.isEmpty(task.location)}" class="d-block" th:text="'📍 ' + ${task.location}"></span>
+                        <div th:if="${task.isPersonalTask()}" class="p-2 bg-success-light rounded">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fas fa-user text-success me-2"></i>
+                                <small class="fw-semibold text-success">Personlig oppgave</small>
+                            </div>
+                            <div class="small text-muted">
+                                <div class="mb-1">
+                                    <i class="fas fa-tag me-1"></i>
+                                    <span th:text="${task.category}"></span>
+                                </div>
+                                <div th:if="${!#strings.isEmpty(task.location)}">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    <span th:text="${task.location}"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Task Meta Info -->
-                    <div class="small text-muted mb-3">
-                        <div class="d-flex justify-content-between">
-                                <span>
-                                    <i class="fas fa-calendar me-1"></i>
-                                    <span th:text="${task.formattedDueDate}">Dato</span>
-                                </span>
-                            <span th:if="${task.overdue}" class="text-danger">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="small text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            <span th:text="${task.formattedDueDate}">Dato</span>
+                        </div>
+                        <div>
+                                <span th:if="${task.overdue and !task.completed}" class="badge bg-danger-light text-danger">
                                     <i class="fas fa-exclamation-triangle me-1"></i>Forfalt
                                 </span>
-                            <span th:if="${task.completed}" class="text-success">
+                            <span th:if="${task.completed}" class="badge bg-success-light text-success">
                                     <i class="fas fa-check-circle me-1"></i>Fullført
                                 </span>
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="d-flex justify-content-between">
-                        <div class="btn-group btn-group-sm">
-                            <a th:href="@{/edit-task/{id}(id=${task.id})}"
-                               class="btn btn-outline-primary"
-                               title="Rediger">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/edit-task/{id}(id=${task.id})}"
+                           class="btn btn-outline-primary btn-sm flex-fill">
+                            <i class="fas fa-edit me-1"></i>Rediger
+                        </a>
 
-                            <form th:if="${!task.completed}"
-                                  th:action="@{/complete-task/{id}(id=${task.id})}"
-                                  method="post" class="d-inline">
-                                <button type="submit"
-                                        class="btn btn-outline-success"
-                                        title="Fullfør">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </form>
-                        </div>
+                        <form th:if="${!task.completed}"
+                              th:action="@{/complete-task/{id}(id=${task.id})}"
+                              method="post" class="flex-fill">
+                            <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fas fa-check me-1"></i>Fullfør
+                            </button>
+                        </form>
 
                         <form th:action="@{/delete-task/{id}(id=${task.id})}"
-                              method="post" class="d-inline">
-                            <button type="submit"
-                                    class="btn btn-outline-danger btn-sm btn-delete"
-                                    title="Slett">
+                              method="post">
+                            <button type="submit" class="btn btn-outline-danger btn-sm btn-delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -219,5 +238,26 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="/js/app.js"></script>
+
+<style>
+    .bg-primary-light {
+        background-color: rgba(99, 102, 241, 0.1) !important;
+    }
+    .bg-success-light {
+        background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+    .bg-warning-light {
+        background-color: rgba(245, 158, 11, 0.1) !important;
+    }
+    .bg-danger-light {
+        background-color: rgba(239, 68, 68, 0.1) !important;
+    }
+    .text-success {
+        color: var(--success) !important;
+    }
+    .text-primary {
+        color: var(--primary) !important;
+    }
+</style>
 </body>
 </html>
