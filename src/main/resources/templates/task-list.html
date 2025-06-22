@@ -60,25 +60,49 @@
         </ol>
     </nav>
 
-    <!-- Quick Filters -->
+    <!-- FILTRE DELT MED PRIORITET NEDERST -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
-                <a href="/" class="btn btn-outline-primary">
-                    <i class="fas fa-list me-1"></i>Alle
-                </a>
-                <a href="/upcoming" class="btn btn-outline-warning">
-                    <i class="fas fa-clock me-1"></i>Kommende
-                </a>
-                <a href="/priority/HIGH" class="btn btn-outline-danger">
-                    <i class="fas fa-exclamation me-1"></i>Høy
-                </a>
-                <a href="/priority/MEDIUM" class="btn btn-outline-warning">
-                    <i class="fas fa-minus me-1"></i>Medium
-                </a>
-                <a href="/priority/LOW" class="btn btn-outline-success">
-                    <i class="fas fa-arrow-down me-1"></i>Lav
-                </a>
+            <!-- Statusfiltre øverst -->
+            <div class="text-center mb-3">
+                <h6 class="text-muted text-uppercase fw-bold mb-3">
+                    <i class="fas fa-filter me-2"></i>Filtrer oppgaver
+                </h6>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-1"></i>Alle oppgaver
+                    </a>
+                    <a href="/upcoming" class="btn btn-outline-warning">
+                        <i class="fas fa-clock me-1"></i>Kommende
+                    </a>
+                    <a href="/pending" class="btn btn-outline-info">
+                        <i class="fas fa-hourglass-half me-1"></i>Gjenstående
+                    </a>
+                    <a href="/completed" class="btn btn-outline-success">
+                        <i class="fas fa-check-circle me-1"></i>Fullført
+                    </a>
+                    <a href="/overdue" class="btn btn-outline-danger">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Forfalt
+                    </a>
+                </div>
+            </div>
+
+            <!-- Prioritetsfiltre nederst -->
+            <div class="text-center">
+                <h6 class="text-muted text-uppercase fw-bold mb-3">
+                    <i class="fas fa-flag me-2"></i>Prioritet
+                </h6>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="/priority/HIGH" class="btn btn-outline-danger">
+                        <i class="fas fa-exclamation me-1"></i>Høy prioritet
+                    </a>
+                    <a href="/priority/MEDIUM" class="btn btn-outline-warning">
+                        <i class="fas fa-minus me-1"></i>Medium prioritet
+                    </a>
+                    <a href="/priority/LOW" class="btn btn-outline-success">
+                        <i class="fas fa-arrow-down me-1"></i>Lav prioritet
+                    </a>
+                </div>
             </div>
         </div>
     </div>
