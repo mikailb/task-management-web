@@ -6,9 +6,10 @@ import com.taskmanager.model.WorkTask;
 import com.taskmanager.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -17,6 +18,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -27,7 +30,7 @@ class TaskControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private TaskService taskService;
 
     private WorkTask workTask;
@@ -92,6 +95,26 @@ class TaskControllerTest {
 
     @Test
     void addWorkTask_ShouldCreateTaskAndRedirect() throws Exception {
+        // Given
+        WorkTask newWorkTask = new WorkTask(
+                "New Work Task",
+                "Work task description",
+                LocalDate.now().plusDays(1),
+                Task.Priority.HIGH,
+                "Test Project",
+                "Test Client",
+                "IT"
+        );
+        when(taskService.createWorkTask(
+                eq("New Work Task"),
+                eq("Work task description"),
+                any(LocalDate.class),
+                eq(Task.Priority.HIGH),
+                eq("Test Project"),
+                eq("Test Client"),
+                eq("IT")
+        )).thenReturn(newWorkTask);
+
         // When & Then
         mockMvc.perform(post("/add-task")
                         .param("taskType", "work")
@@ -120,6 +143,24 @@ class TaskControllerTest {
 
     @Test
     void addPersonalTask_ShouldCreateTaskAndRedirect() throws Exception {
+        // Given
+        PersonalTask newPersonalTask = new PersonalTask(
+                "New Personal Task",
+                "Personal task description",
+                LocalDate.now().plusDays(2),
+                Task.Priority.MEDIUM,
+                "Health",
+                "Gym"
+        );
+        when(taskService.createPersonalTask(
+                eq("New Personal Task"),
+                eq("Personal task description"),
+                any(LocalDate.class),
+                eq(Task.Priority.MEDIUM),
+                eq("Health"),
+                eq("Gym")
+        )).thenReturn(newPersonalTask);
+
         // When & Then
         mockMvc.perform(post("/add-task")
                         .param("taskType", "personal")
@@ -157,7 +198,7 @@ class TaskControllerTest {
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("error"));
 
-        verify(taskService, never()).addTask(any());
+        verify(taskService, never()).addTask(ArgumentMatchers.any());
     }
 
     @Test
@@ -178,6 +219,7 @@ class TaskControllerTest {
     @Test
     void completeTask_WithNonExistentTask_ShouldShowError() throws Exception {
         // Given
+        when(taskService.findTaskById("nonexistent")).thenReturn(Optional.empty());
         when(taskService.completeTask("nonexistent")).thenReturn(false);
 
         // When & Then
@@ -224,7 +266,8 @@ class TaskControllerTest {
         // When & Then
         mockMvc.perform(get("/edit-task/nonexistent"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("error"));
     }
 
     @Test
@@ -303,6 +346,33 @@ class TaskControllerTest {
     }
 
     @Test
+    void pendingTasks_ShouldDisplayPendingTasksPage() throws Exception {
+        // Given
+        when(taskService.getPendingTasks()).thenReturn(Arrays.asList(workTask, personalTask));
+
+        // When & Then
+        mockMvc.perform(get("/pending"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("task-list"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attribute("pageTitle", containsString("Aktive oppgaver")));
+    }
+
+    @Test
+    void overdueTasks_ShouldDisplayOverdueTasksPage() throws Exception {
+        // Given
+        workTask.setDueDate(LocalDate.now().minusDays(1));
+        when(taskService.getOverdueTasks()).thenReturn(Arrays.asList(workTask));
+
+        // When & Then
+        mockMvc.perform(get("/overdue"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("task-list"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attribute("pageTitle", containsString("Forfalte oppgaver")));
+    }
+
+    @Test
     void searchTasks_ShouldDisplaySearchResults() throws Exception {
         // Given
         String searchQuery = "test";
@@ -327,7 +397,7 @@ class TaskControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
-        verify(taskService, never()).searchTasksByTitle(any());
+        verify(taskService, never()).searchTasksByTitle(ArgumentMatchers.any());
     }
 
     @Test
@@ -354,5 +424,76 @@ class TaskControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("info"));
+    }
+
+    @Test
+    void deleteTask_WithNonExistentTask_ShouldShowError() throws Exception {
+        // Given
+        when(taskService.findTaskById("nonexistent")).thenReturn(Optional.empty());
+        when(taskService.removeTask("nonexistent")).thenReturn(false);
+
+        // When & Then
+        mockMvc.perform(post("/delete-task/nonexistent"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("error"));
+    }
+
+    @Test
+    void editTask_WithEmptyTitle_ShouldShowError() throws Exception {
+        // When & Then
+        mockMvc.perform(post("/edit-task/wt123456")
+                        .param("title", "")
+                        .param("description", "Description")
+                        .param("dueDate", LocalDate.now().plusDays(1).toString())
+                        .param("priority", "MEDIUM"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("error"));
+
+        verify(taskService, never()).updateTask(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any()
+        );
+    }
+
+    @Test
+    void editTask_WithInvalidDate_ShouldShowError() throws Exception {
+        // When & Then
+        mockMvc.perform(post("/edit-task/wt123456")
+                        .param("title", "Valid Title")
+                        .param("description", "Description")
+                        .param("dueDate", "")
+                        .param("priority", "MEDIUM"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("error"));
+
+        verify(taskService, never()).updateTask(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any()
+        );
+    }
+
+    @Test
+    void addTask_WithInvalidDate_ShouldShowError() throws Exception {
+        // When & Then
+        mockMvc.perform(post("/add-task")
+                        .param("taskType", "work")
+                        .param("title", "Valid Title")
+                        .param("description", "Description")
+                        .param("dueDate", "invalid-date")
+                        .param("priority", "HIGH"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("error"));
+
+        verify(taskService, never()).addTask(ArgumentMatchers.any());
     }
 }
